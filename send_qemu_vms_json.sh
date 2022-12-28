@@ -1,8 +1,10 @@
 #!/bin/bash
 export LC_ALL=C.UTF-8;
 
-DEBUG=false
-HOST="http://10.0.3.214:13579"
+# random (1 - 30 minutes) sleep for unloading server app
+sleep .$[ (RANDOM % 30) + 1]m
+
+HOST=""
 
 # fields list from the command "qm config $vm_id"
 VM_CONFIG_FIELDS=(
@@ -67,13 +69,13 @@ raid_controller="$(lspci | grep -i RAID\ bus\ controller: | sed s/........RAID\ 
 [[ ! "$vms" ]] && vms="null"
 
 # array distruction
-cpu_model="$(echo -e $cpu_model| sed s/\ /-/)"
-ram_gib="$(echo -e $ram_gib| sed s/\ /-/)"
-disks="$(echo -e $disks| sed s/\ /-/)"
-raid_controller="$(echo -e $raid_controller| sed s/\ /-/)"
+cpu_model="$(echo -e $cpu_model | sed s/\ /-/g)"
+ram_gib="$(echo -e $ram_gib | sed s/\ /-/g)"
+disks="$(echo -e $disks | sed s/\ /-/g)"
+raid_controller="$(echo -e $raid_controller | sed s/\ /-/g)"
 
 # make json
 json="$(printf "{\"node_hostname\":\"%s\",\"node_ip\":\"%s\",\"node_cpu_model\":\"%s\",\"node_cores\":\"%s\",\"node_ram_gib\":\"%s\",\"node_disks\":\"%s\",\"node_raid_controller\":\"%s\",\"vms_configs\":[%s]}" $hostname $ip $cpu_model $cpu_cores $ram_gib $disks $raid_controller "$(echo $vms | sed -e 's/}{/},{/g' - )")";
 
 curl -X POST $HOST -H "Content-Type: application/json" --data "$json"
-#nc -l 12345
+# echo $json
